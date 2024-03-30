@@ -41,7 +41,7 @@ router.post("/register", async (req, res) => {
     try {
         // Insert the new user into the database table "users"
         const result = await knex("users").insert(req.body);
-        const newUserId = result[0];
+        const newUserId = result[0]; 
         //Fetch newly added user,if you get that means successful insertion
         const createdUser = await knex("users").where({ id: newUserId });
         res.status(201).json("New user created successfully!");
@@ -101,8 +101,7 @@ router.get("/profile", verifyToken, async (req, res) => {
 
         if (!user[0]) {
             return res.status(401).json({ error: 'User is not Authorized.' });
-        }
-        console.log("User Profile data", user[0]);
+        }     
         res.status(201).json(user[0]);
 
     } catch (error) {
