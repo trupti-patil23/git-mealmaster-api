@@ -11,7 +11,7 @@ module.exports = router;
  * @param {*} res 
  */
 router.post("/saveMealPlan", async (req, res) => {
-    try { 
+    try {
         // Check if the meal plan already exists
         const existingMealPlan = await knex("meal_plans").
             where("user_id", req.body.userId).
@@ -25,7 +25,7 @@ router.post("/saveMealPlan", async (req, res) => {
             andWhereJsonObject("ingredient_list", req.body.ingredients).
             first();
 
-        if (existingMealPlan) {          
+        if (existingMealPlan) {
             return res.status(409).json({ message: "Same Meal plan already exists.You can edit the plan." });
         }
 
@@ -44,9 +44,36 @@ router.post("/saveMealPlan", async (req, res) => {
         const mealPlanId = result[0];
         //Fetch newly added meal plan,check successful insertion
         const createdUser = await knex("meal_plans").where({ meal_plan_id: mealPlanId });
-        res.status(201).json({message: "Meal Plan saved successfully!"});
+        res.status(201).json({ message: "Meal Plan saved successfully!" });
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Failed to Save Meal plan" + error });
+    }
+});
+
+/**
+ * Added to get meal plans stored for userId in meal_plans table
+ */
+router.get("/viewMealPlan", async (req, res) => {
+    try {        
+        const mealPlans = await knex("meal_plans").
+            select('meal_plans.meal_plan_id as meal_plan_id',
+                'sunday_meal_plan as sunday_meal_plan',
+                'monday_meal_plan as monday_meal_plan',
+                'tuesday_meal_plan as tuesday_meal_plan',
+                'wednesday_meal_plan as wednesday_meal_plan',
+                'thursday_meal_plan as thursday_meal_plan',
+                'friday_meal_plan  as friday_meal_plan',
+                'saturday_meal_plan as saturday_meal_plan',
+                'ingredient_list as ingredient_list').
+            where({ 'meal_plans.user_id': Number(req.query.userId) });
+
+        if (mealPlans) {
+            return res.status(201).json(mealPlans);
+        } else {
+            return res.status(404).json({message: 'No meal plan present for you, Create one using CreateMealPlan.' });
+        }
+    } catch (error) {        
+        res.status(500).send("Error in Signing in user." + error);
     }
 });
