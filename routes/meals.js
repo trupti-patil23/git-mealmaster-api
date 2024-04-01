@@ -77,3 +77,26 @@ router.get("/viewMealPlan", async (req, res) => {
         res.status(500).send("Error in Signing in user." + error);
     }
 });
+
+/**
+ * Added to delete requested meal plan by user using unique meal_plan_id from meal_plans table
+ */
+router.delete("/deleteMealPlan", async (req, res) => {
+    const mealPlanId = req.query.mealPlanId;    
+    try {
+        const rowsDeleted = await knex("meal_plans")
+          .where({ meal_plan_id: mealPlanId })
+          .delete();
+    
+        if (rowsDeleted === 0) {
+          //Response returns 404 if meal_plan_id is not found
+          return res
+            .status(404)
+            .json({ message: `Meal Plan Id ${mealPlanId} is not found` });
+        }
+        //Response returns 204 if successfully deleted
+        res.sendStatus(204);
+      } catch (error) {
+        res.status(500).json({ message: `Error in deleting  meal Plan: ${error}` });
+      }
+});
