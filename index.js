@@ -6,6 +6,8 @@ const app = express();
 const userRouter = require("./routes/users");
 const mealsRouter = require("./routes/meals");
 
+app.use(express.static('public/images'));
+
 //Using express.json() middleware to accept JSON payloads in POST requests
 app.use(express.json());
 
