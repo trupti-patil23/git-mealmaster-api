@@ -56,30 +56,30 @@ router.post("/register", async (req, res) => {
     try {
         //Check if user is already exist
         const existingUser = await knex("users").
-        where({
-            firstName:req.body.firstName,
-            lastName:req.body.lastName,
-            email:req.body.email            
-        });    
+            where({
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email
+            });
 
-        if(existingUser.length > 0) {
+        if (existingUser.length > 0) {
             return res.status(409).json({ message: 'User is already exists' });
         }
-        
+
         // Insert the new user into the database table "users"
-        const result = await knex("users").insert ({
-            firstName:req.body.firstName,
-            lastName:req.body.lastName,
-            email:req.body.email,
-            password:req.body.password
+        const result = await knex("users").insert({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            password: req.body.password
         });
 
         const newUserId = result[0];
         //Fetch newly added user,if you get that means successful insertion
         const createdUser = await knex("users").where({ id: newUserId });
         res.status(201).json("New user created successfully!");
-    } catch (error) {      
-        res.status(500).json({ error: 'Failed to create new user' });        
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to create new user' });
     }
 });
 
@@ -142,7 +142,7 @@ router.get("/profile", verifyToken, async (req, res) => {
  * Added to Post new image at /public/images and create user-profile.json file
  */
 router.post("/uploadPhoto", upload.single('image'), async (req, res) => {
-    try {       
+    try {
         let userProfile = {
             userId: req.body.userId,
             imageName: req.body.imageName
@@ -151,6 +151,20 @@ router.post("/uploadPhoto", upload.single('image'), async (req, res) => {
         res.status(201).json({ message: "Image has uploaded Successfully." });
     } catch (error) {
         res.status(500).send("Error in posting an image" + error);
+    }
+});
+
+/**
+ * Added to return imagename from user-profile-data.json file for given userid
+ */
+router.get("/getProfileImage", async (req, res) => {
+    try {
+        const userId = req.query.userId;
+        const jsonData = fs.readFileSync(JSON_FILE_NAME);
+        const imageData = JSON.parse(jsonData);
+        res.status(200).json(imageData);
+    } catch (error) {
+        res.status(500).json({ message: 'Error in getting ImageName from user-profile-data.json' + error });
     }
 });
 
