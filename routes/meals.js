@@ -55,7 +55,7 @@ router.post("/saveMealPlan", async (req, res) => {
  * Added to get meal plans stored for userId in meal_plans table
  */
 router.get("/viewMealPlan", async (req, res) => {
-    try {        
+    try {
         const mealPlans = await knex("meal_plans").
             select('meal_plans.meal_plan_id as meal_plan_id',
                 'sunday_meal_plan as sunday_meal_plan',
@@ -68,13 +68,13 @@ router.get("/viewMealPlan", async (req, res) => {
                 'ingredient_list as ingredient_list').
             where({ 'meal_plans.user_id': Number(req.query.userId) });
 
-        if (mealPlans) {
-            return res.status(201).json(mealPlans);
+        if (!(mealPlans.length === 0)) {
+            res.status(201).json(mealPlans);
         } else {
-            return res.status(404).json({message: 'No meal plan present for you, Create one using CreateMealPlan.' });
+            return res.status(404).json({ message: 'No meal plan present for you,\n Create one using CreateMealPlan.' });
         }
-    } catch (error) {        
-        res.status(500).send("Error in Signing in user." + error);
+    } catch (error) {
+        res.status(500).send({ message: `Error in Signing in user." ${error}` });
     }
 });
 
@@ -82,21 +82,21 @@ router.get("/viewMealPlan", async (req, res) => {
  * Added to delete requested meal plan by user using unique meal_plan_id from meal_plans table
  */
 router.delete("/deleteMealPlan", async (req, res) => {
-    const mealPlanId = req.query.mealPlanId;    
+    const mealPlanId = req.query.mealPlanId;
     try {
         const rowsDeleted = await knex("meal_plans")
-          .where({ meal_plan_id: mealPlanId })
-          .delete();
-    
+            .where({ meal_plan_id: mealPlanId })
+            .delete();
+
         if (rowsDeleted === 0) {
-          //Response returns 404 if meal_plan_id is not found
-          return res
-            .status(404)
-            .json({ message: `Meal Plan Id ${mealPlanId} is not found` });
+            //Response returns 404 if meal_plan_id is not found
+            return res
+                .status(404)
+                .json({ message: `Meal Plan Id ${mealPlanId} is not found` });
         }
         //Response returns 204 if successfully deleted
         res.sendStatus(204);
-      } catch (error) {
+    } catch (error) {
         res.status(500).json({ message: `Error in deleting  meal Plan: ${error}` });
-      }
+    }
 });
