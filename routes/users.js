@@ -5,7 +5,6 @@ module.exports = router;
 const multer = require('multer'); //for uploading image
 const fs = require("fs");
 
-
 //Stores image to /public/images
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
