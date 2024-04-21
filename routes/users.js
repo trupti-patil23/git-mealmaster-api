@@ -3,9 +3,8 @@ const express = require("express");
 const router = express.Router();   //init the router object
 module.exports = router;
 const multer = require('multer'); //for uploading image
-
 const fs = require("fs");
-const JSON_FILE_NAME = "./data/user-profile-data.json";
+
 
 //Stores image to /public/images
 const storage = multer.diskStorage({
@@ -143,28 +142,21 @@ router.get("/profile", verifyToken, async (req, res) => {
  */
 router.post("/uploadPhoto", upload.single('image'), async (req, res) => {
     try {
-        let userProfile = {
-            userId: req.body.userId,
-            imageName: req.body.imageName
-        };
-        fs.writeFileSync(JSON_FILE_NAME, JSON.stringify(userProfile, null, 2));
+        const userId = req.body.userId;
+        const imageName = req.body.imageName;
+        const rowsUpdated = await knex("users")
+            .where({ 'id': userId })
+            .update({ 'profileImage': imageName });
+
+        if (rowsUpdated === 0) {
+            return res.status(404).json({
+                message: `User Id ${userId} not found`,
+            });
+        }
         res.status(201).json({ message: "Image has uploaded Successfully." });
     } catch (error) {
         res.status(500).send("Error in posting an image" + error);
     }
 });
 
-/**
- * Added to return imagename from user-profile-data.json file for given userid
- */
-router.get("/getProfileImage", async (req, res) => {
-    try {
-        const userId = req.query.userId;
-        const jsonData = fs.readFileSync(JSON_FILE_NAME);
-        const imageData = JSON.parse(jsonData);
-        res.status(200).json(imageData);
-    } catch (error) {
-        res.status(500).json({ message: 'Error in getting ImageName from user-profile-data.json' + error });
-    }
-});
 
