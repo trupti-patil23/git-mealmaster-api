@@ -35,8 +35,7 @@ function verifyToken(req, res, next) {
     }
     // Verify JWT token
     jwt.verify(token, JWT_SECRET_KEY, (err, decoded) => {
-        if (err) {
-            console.log("invalid jwt token.");
+        if (err) {          
             return res.status(403).json({ error: "Invalid JWT token.Token verification failed" });
         }
         // Attached the decoded user data from token to req.user
@@ -137,7 +136,7 @@ router.get("/profile", verifyToken, async (req, res) => {
 });
 
 /**
- * Added to Post new image at /public/images and create user-profile.json file
+ * Added to Post new image at /public/images and update profileImage column of "users" table
  */
 router.post("/uploadPhoto", upload.single('image'), async (req, res) => {
     try {
